@@ -27,69 +27,66 @@ public class Task {
         return count;
     }
 
-    public static int fromZeroToTen_N_Degrees(int n) {
-        if (n == 0) {
+    public static int countZeroDigitsFrom0ToTen_N_degrees(int length) {
+/*
+
+    0 ----- 1
+    1 ----- 10
+    2 ----- 180
+    3 ----- 2700
+    4 ----- 36000
+
+    n ----- n * 9 * 10^(n-1)
+
+ */
+        if (length == -1 || length == 0) {
             return 1;
         }
-        if (n == 1) {
-            return 2;
+        if (length == 1) {
+            return 10;
         }
-        return (int) ((9 * (n - 1) + 1) * Math.pow(10, n - 2) + n);
+        return (int) (length * 9 * Math.pow(10, length - 1)) + countZeroDigitsFrom0ToTen_N_degrees(length - 1);
     }
-
 
     public static int auxiliaryMethodForZero(int length) {
 /*
-    0 ----- 0
-    1 ----- 1*1*9^1
-    2 ----- 1*1*9^2 + 2*2*9^1
-    3 ----- 1*1*9^3 + 2*3*9^2 + 3*3*9^1
-    4 ----- 1*1*9^4 + 2*4*9^3 + 3*6*9^2 + 4*4*9^1
 
-    n ----- 1*combination(length -2 , 0)*9^k  + 2*combination(length -2 , 1)*9^(k-1) + ...
+    0 ----- 1
+    1 ----- 11
+    2 ----- 120
+    3 ----- 1300
+    4 ----- 14000
 
-                ... +  n* combination(length -2 , k + 1 ) *9^1
+    n ----- n * 9 * 10^(n-1)
+
  */
-        if (length > 2) {
-            int count = 0;
-            int k = 0;
-            int temp = length - 2;
-            while (temp > 0) {
-
-                count += combination(length - 2, k) * (k + 1) * Math.pow(9, temp);
-                k++;
-                temp--;
-            }
-            return count;
+        if (length == 0) {
+            return 1;
         }
-        return 0;
+        String st = "1" + (int) (length * Math.pow(10, length - 1));
+        return (int) (Integer.parseInt(st));
     }
-
-    public static int combination(int n, int k) {
-        if (k == 0) return 1;
-        if (n == 0) return 0;
-        return combination(n - 1, k - 1) + combination(n - 1, k);
-    }
-
-
+    
     public static int countForTheZeroDigitCase(int number) {
 
-        int count = 0;
+        int count = amountOfGivenDigitInNumber(number, 0);
         int temp = 0;
         while (number > 0) {
-            if (number % 10 > 0) {
-                if (number < 10) {
+            if (number % 10 > 0 && number != 1) {
+                if (number > 9) {
+                    count += (number % 10) * amountOfGivenDigitInNumber(number / 10, 0) * Math.pow(10, temp);
+
+                    count += auxiliaryMethodForZero(temp);
                     count += (number % 10 - 1) * auxiliaryMethod(temp);
                 } else {
-                    count += (number % 10) * amountOfGivenDigitInNumber(number / 10, 0);
-                    count += auxiliaryMethodForZero(temp + 2);
-                    count += (number % 10) * auxiliaryMethod(temp);
+                    count += (number % 10 - 1) * auxiliaryMethod(temp);
                 }
             }
+
             number = number / 10;
             temp++;
         }
-        return count + fromZeroToTen_N_Degrees(temp - 1);
+        return count + countZeroDigitsFrom0ToTen_N_degrees(temp - 2);
     }
 
 
@@ -123,6 +120,23 @@ public class Task {
     }
 
     public static void main(String[] args) {
-        System.out.println(taskMethod(100));
+      
+        int count = 0;
+        for (long i = 0; i <= 4521; i++) {
+
+            long j = i;
+
+            while (j > 0) {
+                if (j % 10 == 0) {
+                    count++;
+                }
+                j = j / 10;
+            }
+        }
+        System.out.println(count + 1);
+        
+
+        System.out.println(countForTheZeroDigitCase(4521));
+        
     }
 }
